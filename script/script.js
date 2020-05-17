@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const nextButton = document.querySelector('#next');
     const prevButton = document.querySelector('#prev');
     const sendButton = document.querySelector('#send');
+    const modalTitle = document.querySelector('.modal-title');
 
     // объект, содержащий вопросы и ответы
     const questions = [
@@ -127,10 +128,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // функция запуска тестирования
     const playTest = () => {
-        const finalAnswers = [];  
+        const finalAnswers = []; 
+        const obj = {}; 
 
         // переменная с номером вопроса
-        let numberQuestion = 0;        
+        let numberQuestion = 0; 
+        modalTitle.textContent = 'Ответь на вопрос:';       
 
         // функция рендеринга контента ответов
         const renderAnswers = (index) => {
@@ -152,7 +155,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // функция рендеринга вопрос+ответ в окне
         const renderQuestions = (indexQuestion) => {            
-            formAnswers.innerHTML = '';
+            formAnswers.innerHTML = '';          
 
             if (numberQuestion >= 0 && numberQuestion <= questions.length - 1) {
                 questionTitle.textContent = `${questions[indexQuestion].question}`;     
@@ -167,6 +170,9 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             if (numberQuestion === questions.length) {
+                questionTitle.textContent = ''; 
+                modalTitle.textContent = '';                
+            
                 nextButton.classList.add('d-none');
                 prevButton.classList.add('d-none');
                 sendButton.classList.remove('d-none');
@@ -176,24 +182,34 @@ document.addEventListener('DOMContentLoaded', function() {
                     <label for="numberPhone">Enter your number</label>
                     <input type="phone" class="form-control" id="numberPhone">
                 </div>
-
                 `;
+                const numberPhone = document.getElementById('numberPhone');
+                numberPhone.addEventListener('input', (event) => {
+                    event.target.value = event.target.value.replace(/[^0-9+-]/, "");
+
+                }); 
             }
 
             if (numberQuestion === questions.length + 1) {
                 formAnswers.textContent = 'Спасибо что выбрали нас!';
+                sendButton.classList.add('d-none');
+
+                for (let key in obj) {                    
+                    let newObj = {};
+                    newObj[key] = obj[key];
+                    finalAnswers.push(newObj);
+                }               
                 setTimeout(() => {
                     modalBlock.classList.remove('d-block');
                 }, 2000);               
 
-            }           
+            }          
         }
         // запуск функции рендеринга
         renderQuestions(numberQuestion) ;
 
-        const checkAnswer = () => {            
-            const obj = {};
-
+        const checkAnswer = () => {     
+            
             const inputs = [...formAnswers.elements].filter((input) => input.checked || input.id === 'numberPhone');
             inputs.forEach((input, index) => {
                 if (numberQuestion >= 0 && numberQuestion <= questions.length - 1) {
@@ -202,8 +218,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (numberQuestion === questions.length) {
                     obj['Номер телефона'] = input.value;
                 }                
-            });
-            finalAnswers.push(obj);
+            });            
         };
                
         // обработчики событий кнопок prev/next
@@ -223,7 +238,7 @@ document.addEventListener('DOMContentLoaded', function() {
             checkAnswer();
             numberQuestion++;
             renderQuestions(numberQuestion); 
-            console.log(finalAnswers);
+            console.log(finalAnswers);           
         }
     }
 
